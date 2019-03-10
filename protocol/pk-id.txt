@@ -1,0 +1,10 @@
+name                       hex
+PK_LOAD_CUBE_DICT          0101
+PK_LOAD_CUBE_BATCH         0102
+PK_SPAWN_SPAWN             0201
+PK_GP_CUBE_UPDATE          0301
+PK_GP_CUBE_INTERACT        0302
+PK_GP_FLEX_MOTION          0311
+PK_GP_USER_MOTION          0312
+PK_GP_USER_FLAGS           0313
+PK_GP_FLEX_FLAGS           0314

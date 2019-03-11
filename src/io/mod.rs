@@ -18,7 +18,12 @@
  */
 
 pub mod reader;
+#[cfg(test)]
+pub mod reader_test;
+
 pub mod writer;
+#[cfg(test)]
+pub mod writer_test;
 
 pub mod cube;
 pub mod flex;

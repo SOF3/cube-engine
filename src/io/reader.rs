@@ -43,7 +43,6 @@ macro_rules! read_bytes {
 }
 
 /// Implements a reader supporting the data types described in spec
-#[allow(dead_code)]
 impl<R> CubeReader<R> where R: Read {
     /// Creates a new CubeReader
     pub fn new(source: R) -> CubeReader<R> {

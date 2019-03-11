@@ -17,10 +17,3 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-mod io;
-#[allow(dead_code)]
-mod protocol;
-mod util;
-
-#[allow(dead_code)]
-struct Client {}

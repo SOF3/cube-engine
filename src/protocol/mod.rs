@@ -17,15 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::io::Write;
-
-use crate::io::writer::CubeWriter;
-use crate::util::VioResult;
-
 pub mod ll;
 pub mod pk;
 pub mod handler;
-
-pub trait Signal {
-    fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult where Self: Sized;
-}

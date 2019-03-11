@@ -123,10 +123,11 @@ fn read_f32() {
 }
 
 #[test]
-fn read_f32_inf() {
+fn read_f32_bnd() {
     let mut reader: CubeReader<&[u8]> = CubeReader::new(&[
         0x7f, 0x80, 0x00, 0x00,
         0xff, 0x80, 0x00, 0x00,
+        0x7f, 0xc0, 0x00, 0x00,
         0xff, 0xc0, 0x00, 0x00,
     ]);
     assert_eq!(reader.read_float32().unwrap(), std::f32::INFINITY);
@@ -145,10 +146,12 @@ fn read_f64_inf() {
     let mut reader: CubeReader<&[u8]> = CubeReader::new(&[
         0x7f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0xff, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0xff, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     ]);
     assert_eq!(reader.read_float64().unwrap(), std::f64::INFINITY);
     assert_eq!(reader.read_float64().unwrap(), -std::f64::INFINITY);
+    assert!(reader.read_float64().unwrap().is_nan());
     assert!(reader.read_float64().unwrap().is_nan());
 }
 
@@ -174,6 +177,7 @@ fn read_nop() {
         assert_eq!(reader.read_bit().unwrap(), expect2[i]);
     }
 }
+
 #[test]
 fn read_nop_safe() {
     make_reader!(reader);
@@ -205,6 +209,7 @@ fn read_nibble_u8_panic() {
     assert_eq!(reader.read_nibble().unwrap(), 0x1 as u8);
     reader.read_uint8().unwrap();
 }
+
 #[test]
 #[should_panic(expected = "Pointer is not at a complete byte")]
 fn read_bit_u8_panic() {

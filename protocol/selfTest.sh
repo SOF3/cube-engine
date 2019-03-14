@@ -24,7 +24,10 @@ cd `dirname "$0"`
 npm install -g typescript ts-node
 NODE_ENV=development npm install
 
-ts-node protocolTest server 8765 &
+PORT=8765
+ts-node protocolTest server $PORT &
 SERVER_PID=$!
-ts-node protocolTest client 8765
-wait $SERVER_PID
+sleep 1
+ts-node protocolTest client $PORT &
+CLIENT_PID=$1
+wait $SERVER_PID $CLIENT_PID

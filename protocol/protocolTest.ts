@@ -5,6 +5,8 @@ import * as process from "process"
 import * as ws from "websocket"
 import * as zlib from "zlib"
 
+let context: string
+
 let input = fs.readFileSync(path.join(__dirname, "test.txt"), {encoding: "utf8"}).split("\n")
 
 interface Test{
@@ -170,7 +172,7 @@ function createTestClient(resolve: () => void, reject: (err: any) => void, testI
 
 async function performTests(socket: ws.connection, testId: number, isServer: boolean){
 	const test = tests[testId]
-	console.log(`[${testId}] Testing ${test.name}`)
+	console.log(`${context} Test #${testId}: ${test.name}`)
 
 	const messageQueue = [] as ws.IMessage[]
 	const messageReceiveQueue = [] as ((message: ws.IMessage) => void)[]
@@ -192,6 +194,7 @@ async function performTests(socket: ws.connection, testId: number, isServer: boo
 
 	for(let i = 0; i < test.steps.length; i++){
 		const step = test.steps[i]
+		console.log(`${context} Test #${testId}, step ${i + 1}`)
 		if(step.fromServer === isServer){
 			socket.sendBytes(step.buffer.getBuffer())
 		}else{
@@ -215,6 +218,7 @@ if(!(1024 <= port && port <= 65535)){
 	throw "Usage: node protocolTest (server|client) <port>"
 }
 if(process.argv[2] === "server" || process.argv[2] === "client"){
+	context = process.argv[2] === "server" ? "[SERVER]" : "[CLIENT]"
 	const promises = [] as Promise<any>[]
 	for(let testId = 0; testId < tests.length; testId++){
 		const promise = new Promise((resolve, reject) => {
@@ -225,14 +229,14 @@ if(process.argv[2] === "server" || process.argv[2] === "client"){
 			}
 		})
 		promises.push(promise.then(() => {
-			console.log(`[${testId}] Test passed`)
+			console.log(`${context} Test #${testId} passed`)
 		}).catch(err => {
-			console.error(`[${testId}] Test failed: ${err}`)
+			console.error(`${context} Test #${testId} failed: ${err}`)
 			return Promise.reject(err)
 		}))
 	}
 	Promise.all(promises).then(() => {
-		console.log("All tests passed")
+		console.log(`${context} All tests passed`)
 		process.exit(0)
 	})
 }else{

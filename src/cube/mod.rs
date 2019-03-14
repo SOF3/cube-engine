@@ -17,29 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::io::{Read, Write};
-
-use crate::io::flex::FlexPos;
-use crate::io::reader::CubeReader;
-use crate::io::writer::CubeWriter;
-use crate::util::{IoResult, VioResult};
-
-pub const PK_SPAWN_SPAWN: u16 = 0x0201;
-
-pub struct SpawnSignal {
-    pos: FlexPos,
-}
-
-impl SpawnSignal {
-    pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
-        writer.write_uint16(PK_SPAWN_SPAWN)?;
-        writer.write_flex_pos(&self.pos)?;
-        Result::Ok(())
-    }
-
-    pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<SpawnSignal> {
-        Result::Ok(SpawnSignal {
-            pos: reader.read_flex_pos()?,
-        })
-    }
-}
+pub mod batch;
+pub mod def;
+pub mod dict;

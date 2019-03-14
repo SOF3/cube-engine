@@ -31,3 +31,5 @@ sleep 1
 ts-node protocolTest client $PORT &
 CLIENT_PID=$1
 wait $SERVER_PID $CLIENT_PID
+
+echo OK, protocolTest.ts seems to be working correctly

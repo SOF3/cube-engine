@@ -26,12 +26,12 @@ use crate::util::{IoResult, VioResult};
 
 pub const PK_LOAD_CUBE_BATCH: u16 = 0x0102;
 
-pub struct CubeBatch {
+pub struct CubeBatchSignal {
     pos: IntPos,
     payload: [u32; 4096],
 }
 
-impl CubeBatch {
+impl CubeBatchSignal {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint16(PK_LOAD_CUBE_BATCH)?;
         writer.write_int_pos(&self.pos)?;
@@ -41,8 +41,8 @@ impl CubeBatch {
         Result::Ok(())
     }
 
-    pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeBatch> {
-        let mut pk = CubeBatch {
+    pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeBatchSignal> {
+        let mut pk = CubeBatchSignal {
             pos: reader.read_int_pos()?,
             payload: [0; 4096],
         };

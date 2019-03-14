@@ -23,8 +23,9 @@ use crate::protocol::ll::disconnect::{ClientDisconnect, ServerDisconnect};
 use crate::protocol::ll::login_accept::LoginAccept;
 use crate::protocol::ll::login_request::LoginRequest;
 use crate::protocol::ll::ping::{Ping, Pong};
-use crate::protocol::pk::spawn::Spawn;
-use crate::protocol::pk::cube_dict::CubeDict;
+use crate::protocol::pk::spawn::SpawnSignal;
+use crate::protocol::pk::cube_dict::CubeDictSignal;
+use crate::protocol::pk::cube_batch::CubeBatchSignal;
 
 macro_rules! cs_only {
     () => (
@@ -54,11 +55,15 @@ impl<A: ClientAdapter> SignalHandler for Client<A> {
         unimplemented!()
     }
 
-    fn handle_pk_spawn(&mut self, signal: Spawn) {
+    fn handle_pk_cube_batch(&mut self, signal: CubeBatchSignal) {
         unimplemented!()
     }
 
-    fn handle_pk_cube_dict(&mut self, signal: CubeDict) {
+    fn handle_pk_cube_dict(&mut self, signal: CubeDictSignal) {
+        unimplemented!()
+    }
+
+    fn handle_pk_spawn(&mut self, signal: SpawnSignal) {
         unimplemented!()
     }
 }

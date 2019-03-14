@@ -22,20 +22,16 @@ use std::io::{Read, Write};
 use crate::io::reader::CubeReader;
 use crate::io::writer::CubeWriter;
 use crate::util::{IoResult, VioResult};
+use crate::cube::def::CubeDef;
 
 pub const PK_LOAD_CUBE_DICT: u16 = 0x0101;
 
-pub struct CubeDef {
-    id: u32,
-    name: String,
-}
-
-pub struct CubeDict {
+pub struct CubeDictSignal {
     size: u32,
     defs: Vec<Box<CubeDef>>,
 }
 
-impl CubeDict {
+impl CubeDictSignal {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint16(PK_LOAD_CUBE_DICT)?;
         writer.write_uint32(self.size)?;
@@ -50,7 +46,7 @@ impl CubeDict {
         Result::Ok(())
     }
 
-    pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeDict> {
+    pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeDictSignal> {
         let size = reader.read_uint32()?;
         let mut defs = Vec::<Box<CubeDef>>::new();
         for _ in 0..size {
@@ -62,6 +58,6 @@ impl CubeDict {
             let def = CubeDef { id, name };
             defs.push(Box::new(def));
         }
-        Result::Ok(CubeDict { size, defs })
+        Result::Ok(CubeDictSignal { size, defs })
     }
 }

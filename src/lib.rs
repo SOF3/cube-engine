@@ -23,4 +23,6 @@ mod io;
 mod protocol;
 mod util;
 
+mod cube;
+
 mod client;

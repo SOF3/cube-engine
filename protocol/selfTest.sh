@@ -21,7 +21,7 @@ set -e
 
 cd `dirname "$0"`
 
-npm install -g ts-node
+npm install -g typescript ts-node
 NODE_ENV=development npm install
 
 ts-node protocolTest server 8765 &

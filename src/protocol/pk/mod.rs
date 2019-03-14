@@ -21,15 +21,20 @@ use std::io::Read;
 
 use crate::io::reader::CubeReader;
 use crate::protocol::handler::SignalHandler;
+use crate::protocol::pk::cube_dict::CubeDict;
 use crate::protocol::pk::spawn::Spawn;
 use crate::util::{io_error_f, VioResult};
 
+pub mod cube_dict;
+pub mod cube_batch;
 pub mod spawn;
 
 pub fn handle_pk<H: SignalHandler, R: Read>(handler: &mut H, reader: &mut CubeReader<R>) -> VioResult {
     let id = reader.read_uint16()?;
     match id {
+        cube_dict::PK_LOAD_CUBE_DICT => handler.handle_pk_cube_dict(CubeDict::read(reader)?),
         spawn::PK_SPAWN_SPAWN => handler.handle_pk_spawn(Spawn::read(reader)?),
+
         _ => io_error_f("Unknown packed signal ID ".to_string() + &id.to_string())?,
     };
     Result::Ok(())

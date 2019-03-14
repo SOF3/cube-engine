@@ -17,10 +17,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
+mod handler;
 
-mod io;
-mod protocol;
-mod util;
+pub enum ClientState {
+    Initial,
+    LoginRequested,
+    Loading,
+    Spawned,
+    Disconnected,
+}
 
-mod client;
+pub struct Client<A> {
+    state: ClientState,
+    adapter: A,
+}
+
+impl<A: ClientAdapter> Client<A> {
+    pub fn new(adapter: A) -> Client<A> {
+        Client {
+            state: ClientState::Initial,
+            adapter,
+        }
+    }
+}
+
+pub trait ClientAdapter {}

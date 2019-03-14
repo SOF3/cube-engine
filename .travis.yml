@@ -8,3 +8,9 @@ matrix:
     - rust: nightly
   fast_finish: true
 cache: cargo
+script:
+  - protocol/selfTest.sh
+  - cargo build --verbose
+  - cargo test --verbose
+after_script:
+  - bash <(curl -s https://codecov.io/bash)

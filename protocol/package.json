@@ -1,0 +1,18 @@
+{
+	"name": "cube-engine-protocol-test",
+	"description": "Test server/client to validate cube-engine implementations",
+	"repository": "https://github.com/SOF3/cube-engine.git",
+	"license": "AGPL-3.0",
+	"version": "1.0.0",
+	"dependencies": {
+		"websocket": "^1.0.28"
+	},
+	"devDependencies": {
+		"@types/node": "^11.10.4",
+		"@types/websocket": "^0.0.40",
+		"typescript": "^3.3.3333"
+	},
+	"scripts": {
+		"start": "ts-node protocolTest"
+	}
+}

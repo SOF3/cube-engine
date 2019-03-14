@@ -3,6 +3,16 @@ name = "cube-engine"
 version = "0.1.0"
 authors = ["SOFe <sofe2038@gmail.com>"]
 edition = "2018"
+description = "cube-pump protocol implementation"
+homepage = "https://github.com/SOF3/cube-engine"
+repository = "https://github.com/SOF3/cube-engine.git"
+readme = "README.md"
+categories = ["web-programming::websocket", "network-programming"]
+license = "AGPL-3.0"
+
+[badges]
+travis-ci = { repository = "SOF3/cube-engine" }
+codecov = { repository = "SOF3/cube-engine" }
 
 [dependencies]
 byteorder = "1.3"

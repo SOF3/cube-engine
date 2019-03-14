@@ -7,7 +7,11 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
-cache: cargo
+cache:
+  cargo: true
+  npm: true
+  directories:
+    - protocol/node_modules
 script:
   - protocol/selfTest.sh
   - cargo build --verbose

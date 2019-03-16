@@ -17,12 +17,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
+extern crate cube_engine;
+extern crate websocket;
 
-pub mod io;
-pub mod protocol;
-pub mod util;
+//use websocket::client::async::ClientNew;
+//use websocket::ClientBuilder;
+//use websocket::stream::async::TcpStream;
 
-pub mod cube;
+mod common;
 
-pub mod client;
+#[test]
+fn test_hex() {
+    let tests = common::read::read_tests().expect("Error reading tests");
+//    let mut port = 8765;
+    for (name, test) in tests {
+//        let mut client = ClientBuilder::new(("ws://127.0.0.1:".to_owned() + port.to_string().as_str()).as_str())
+//            .expect("Failed creating client");
+//        client.add_protocol("cube-pump");
+//        test.run_client(client.async_connect_insecure());
+        // TODO
+        println!("{}", test);
+//        port += 1;
+    }
+}

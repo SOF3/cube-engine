@@ -36,7 +36,7 @@ pub fn handle_pk<H: SignalHandler, R: Read>(handler: &mut H, reader: &mut CubeRe
         cube_batch::PK_LOAD_CUBE_BATCH => handler.handle_pk_cube_batch(CubeBatchSignal::read(reader)?),
         cube_dict::PK_LOAD_CUBE_DICT => handler.handle_pk_cube_dict(CubeDictSignal::read(reader)?),
         spawn::PK_SPAWN_SPAWN => handler.handle_pk_spawn(SpawnSignal::read(reader)?),
-        _ => io_error_f("Unknown packed signal ID ".to_string() + &id.to_string())?,
+        _ => io_error_f("Unknown packed signal ID ".to_owned() + &id.to_string())?,
     };
     Result::Ok(())
 }

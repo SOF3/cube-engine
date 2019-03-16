@@ -44,7 +44,7 @@ pub fn handle_ll<H: SignalHandler, R: Read>(handler: &mut H, reader: &mut CubeRe
         ping::LL_PING => handler.handle_ll_ping(Ping::read(reader)?),
         ping::LL_PONG => handler.handle_ll_pong(Pong::read(reader)?),
         package::LL_PACKAGE => handle_package(handler, reader)?,
-        _ => io_error_f("Unknown low-level signal ID ".to_string() + &id.to_string())?,
+        _ => io_error_f("Unknown low-level signal ID ".to_owned() + &id.to_string())?,
     };
     Result::Ok(())
 }

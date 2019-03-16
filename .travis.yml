@@ -7,6 +7,12 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+addons:
+  apt:
+    packages:
+      - libssl-dev
+before_cache:
+  - RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin -f
 cache:
   cargo: true
   npm: true
@@ -17,4 +23,5 @@ script:
   - cargo build --verbose
   - cargo test --verbose
 after_script:
+  - cargo tarpaulin --out Xml
   - bash <(curl -s https://codecov.io/bash)

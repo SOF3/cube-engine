@@ -19,7 +19,6 @@ cache:
   directories:
     - protocol/node_modules
 script:
-  - protocol/selfTest.sh
   - cargo build --verbose
   - cargo test --verbose
 after_script:

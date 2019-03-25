@@ -49,5 +49,5 @@ pub fn preprocess_test_file(file: PathBuf) -> IoResult<Vec<String>> {
         lines.push(line.to_owned());
     }
 
-    Result::Ok(lines)
+    Ok(lines)
 }

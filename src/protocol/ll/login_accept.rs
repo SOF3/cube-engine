@@ -33,10 +33,10 @@ impl LoginAccept {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint8(LL_LOGIN_ACCEPT)?;
         writer.write_uint32(self.minor_protocol)?;
-        Result::Ok(())
+        Ok(())
     }
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<Self> {
-        Result::Ok(Self {
+        Ok(Self {
             minor_protocol: reader.read_uint32()?,
         })
     }

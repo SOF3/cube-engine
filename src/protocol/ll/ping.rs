@@ -33,10 +33,10 @@ impl Ping {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint8(LL_PING)?;
         writer.write_uint64(self.last_cycle)?;
-        Result::Ok(())
+        Ok(())
     }
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<Self> {
-        Result::Ok(Self {
+        Ok(Self {
             last_cycle: reader.read_uint64()?,
         })
     }
@@ -49,7 +49,7 @@ pub struct Pong {}
 impl Pong {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint8(LL_PONG)?;
-        Result::Ok(())
+        Ok(())
     }
-    pub fn read<R: Read>(_reader: &mut CubeReader<R>) -> IoResult<Self> { Result::Ok(Self {}) }
+    pub fn read<R: Read>(_reader: &mut CubeReader<R>) -> IoResult<Self> { Ok(Self {}) }
 }

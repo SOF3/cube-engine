@@ -43,7 +43,7 @@ impl CubeDictSignal {
                 // TODO write cube model
             }
         }
-        Result::Ok(())
+        Ok(())
     }
 
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeDictSignal> {
@@ -58,6 +58,6 @@ impl CubeDictSignal {
             let def = CubeDef { id, name };
             defs.push(Box::new(def));
         }
-        Result::Ok(CubeDictSignal { size, defs })
+        Ok(CubeDictSignal { size, defs })
     }
 }

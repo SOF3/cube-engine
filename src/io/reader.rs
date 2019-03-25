@@ -59,7 +59,7 @@ impl<R> CubeReader<R> where R: Read {
             self.current_bit = 0;
             self.current_byte = 0;
         }
-        Result::Ok(())
+        Ok(())
     }
 
     fn ensure_complete_byte(&self) {
@@ -78,7 +78,7 @@ impl<R> CubeReader<R> where R: Read {
         let ret = (self.current_byte & (1 << (7 - self.current_bit))) > 0;
         self.current_bit += 1;
         self.current_bit &= 7;
-        Result::Ok(ret)
+        Ok(ret)
     }
     /// Reads the next nibble as a boolean.
     /// The bit pointer must be at offset `0` or `4`.
@@ -92,20 +92,20 @@ impl<R> CubeReader<R> where R: Read {
         let ret = (self.current_byte >> (4 - self.current_bit)) & 0x0F;
         self.current_bit ^= 4;
         self.current_bit &= 7;
-        Result::Ok(ret)
+        Ok(ret)
     }
 
     /// Reads `buf.len()` bytes from the source into `buf`
     pub fn read_bytes(&mut self, buf: &mut [u8]) -> VioResult {
         self.ensure_complete_byte();
         self.source.read_exact(buf)?;
-        Result::Ok(())
+        Ok(())
     }
 
     /// Reads an i8 from the source
     pub fn read_int8(&mut self) -> IoResult<i8> {
         self.ensure_complete_byte();
-        Result::Ok(read_bytes!(self, 1)[0] as i8)
+        Ok(read_bytes!(self, 1)[0] as i8)
     }
     /// Reads an i16 from the source
     pub fn read_int16(&mut self) -> IoResult<i16> {
@@ -130,7 +130,7 @@ impl<R> CubeReader<R> where R: Read {
     /// Reads a u8 from the source
     pub fn read_uint8(&mut self) -> IoResult<u8> {
         self.ensure_complete_byte();
-        Result::Ok(read_bytes!(self, 1)[0])
+        Ok(read_bytes!(self, 1)[0])
     }
     /// Reads a u16 from the source
     pub fn read_uint16(&mut self) -> IoResult<u16> {
@@ -171,7 +171,7 @@ impl<R> CubeReader<R> where R: Read {
         self.source.read_exact(vec.as_mut_slice())?;
         let string = String::from_utf8(vec)
             .map_err(|err| make_io_error(err.description()))?;
-        return Result::Ok(string);
+        return Ok(string);
     }
     /// Reads a string from the source with u32 length prefix
     pub fn read_string32(&mut self) -> IoResult<String> {
@@ -181,12 +181,12 @@ impl<R> CubeReader<R> where R: Read {
         self.source.read_exact(vec.as_mut_slice())?;
         let string = String::from_utf8(vec)
             .map_err(|err| make_io_error(err.description()))?;
-        return Result::Ok(string);
+        return Ok(string);
     }
 
     /// Reads an IntPos from the source
     pub fn read_int_pos(&mut self) -> IoResult<IntPos> {
-        Result::Ok(IntPos {
+        Ok(IntPos {
             x: self.read_int32()?,
             y: self.read_int32()?,
             z: self.read_int32()?,
@@ -194,7 +194,7 @@ impl<R> CubeReader<R> where R: Read {
     }
     /// Reads a FloatPos from the source
     pub fn read_float_pos(&mut self) -> IoResult<FloatPos> {
-        Result::Ok(FloatPos {
+        Ok(FloatPos {
             x: self.read_float32()?,
             y: self.read_float32()?,
             z: self.read_float32()?,
@@ -210,11 +210,11 @@ impl<R> CubeReader<R> where R: Read {
             local_z: self.read_nibble()?,
         };
         self.read_nop()?;
-        Result::Ok(ret)
+        Ok(ret)
     }
     /// Reads a [CubePrecisePos](CubePrecisePos) from the source
     pub fn read_cube_precise_pos(&mut self) -> IoResult<CubePrecisePos> {
-        Result::Ok(CubePrecisePos {
+        Ok(CubePrecisePos {
             cube: CubePos {
                 batch: self.read_int_pos()?,
                 local_x: self.read_nibble()?,
@@ -229,7 +229,7 @@ impl<R> CubeReader<R> where R: Read {
 
     /// Writes a [FlexPos](FlexPos) to the target
     pub fn read_flex_pos(&mut self) -> IoResult<FlexPos> {
-        Result::Ok(FlexPos {
+        Ok(FlexPos {
             batch: self.read_int_pos()?,
             local: self.read_float_pos()?,
             yaw: self.read_float32()?,

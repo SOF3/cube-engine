@@ -17,19 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::io::{Error, ErrorKind};
+mod protocol;
 
-pub type IoResult<T> = Result<T, Error>;
-pub type VioResult = IoResult<()>;
-
-pub fn make_io_error(desc: &str) -> Error {
-    Error::new(ErrorKind::Other, desc)
-}
-
-pub fn io_error<T>(desc: &str) -> Result<T, Error> {
-    Err(make_io_error(desc))
-}
-
-pub fn io_error_f<T>(desc: String) -> Result<T, Error> {
-    Err(make_io_error(desc.as_str()))
+fn main(){
+    protocol::generate();
 }

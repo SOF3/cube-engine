@@ -35,10 +35,10 @@ impl ServerDisconnect {
         writer.write_uint8(LL_SERVER_DISCONNECT)?;
         writer.write_string(self.reason.as_str())?;
         writer.write_bit(self.rejoin)?;
-        Result::Ok(())
+        Ok(())
     }
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<Self> {
-        Result::Ok(Self {
+        Ok(Self {
             reason: reader.read_string()?,
             rejoin: false,
         })
@@ -52,7 +52,7 @@ pub struct ClientDisconnect {}
 impl ClientDisconnect {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint8(LL_CLIENT_DISCONNECT)?;
-        Result::Ok(())
+        Ok(())
     }
-    pub fn read<R: Read>(_reader: &mut CubeReader<R>) -> IoResult<Self> { Result::Ok(Self {}) }
+    pub fn read<R: Read>(_reader: &mut CubeReader<R>) -> IoResult<Self> { Ok(Self {}) }
 }

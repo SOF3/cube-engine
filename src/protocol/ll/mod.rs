@@ -46,5 +46,5 @@ pub fn handle_ll<H: SignalHandler, R: Read>(handler: &mut H, reader: &mut CubeRe
         package::LL_PACKAGE => handle_package(handler, reader)?,
         _ => io_error_f("Unknown low-level signal ID ".to_owned() + &id.to_string())?,
     };
-    Result::Ok(())
+    Ok(())
 }

@@ -34,11 +34,11 @@ impl SpawnSignal {
     pub fn write<W: Write>(&self, writer: &mut CubeWriter<W>) -> VioResult {
         writer.write_uint16(PK_SPAWN_SPAWN)?;
         writer.write_flex_pos(&self.pos)?;
-        Result::Ok(())
+        Ok(())
     }
 
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<SpawnSignal> {
-        Result::Ok(SpawnSignal {
+        Ok(SpawnSignal {
             pos: reader.read_flex_pos()?,
         })
     }

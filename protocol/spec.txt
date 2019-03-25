@@ -79,6 +79,8 @@ struct flex_pos
 [FSM]
 digraph FSM
 	initial -> login_requested [HandShake]
+	login_requested -> login_challenged [LoginChallengeQuestion]
+	login_challenged -> login_requested [LoginChallengeAnswer]
 	login_requested -> loading [LoginAccept]
 	login_requested -> disconnected [Disconnect]
 	loading -> loading [Load]
@@ -99,6 +101,15 @@ CS LOGIN_REQUEST
 	userId byte[20]
 	language string
 	sysInfo string
+
+[LoginChallengeQuestion]
+SC LOGIN_EXTERNAL_QUESTION
+	method string ; e.g. "CubePump.GoogleLogin", "CubePump.TwitterLogin", "CubePump.GoogleCaptcha", etc.
+	payload string ; JSON-encoded payload subject to the external method
+
+[LoginChallengeAnswer]
+CS LOGIN_EXTERNAL_ANSWER
+	payload string ; JSON-encoded payload subject to the external method
 
 [LoginAccept]
 SC LOGIN_ACCEPT

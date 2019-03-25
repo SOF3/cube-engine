@@ -17,6 +17,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+pub struct Client {
+    state: ConnectionState,
+}
+
+pub struct Server {
+    state: ConnectionState,
+}
+
+include!(concat!(env!("OUT_DIR"), "/protocol.rs"));
+
 pub mod ll;
 pub mod pk;
 pub mod handler;
+
+fn test() {
+    dbg!(ConnectionState::Spawned);
+}

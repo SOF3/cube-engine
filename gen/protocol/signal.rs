@@ -18,7 +18,9 @@
  */
 
 use yaml_rust::Yaml;
-use crate::protocol::format::{FieldFormat, create_field_format};
+
+use crate::protocol::format::{create_field_format, FieldFormat};
+use crate::protocol::types::Types;
 
 pub struct SignalGroup {
     pub class: SignalClass,
@@ -26,8 +28,8 @@ pub struct SignalGroup {
 }
 
 impl SignalGroup {
-    pub fn new(data: &Yaml) -> SignalGroup {
-        let x = data["_class"].as_str().unwrap();
+    pub fn new(types: &Types, name: &str, data: &Yaml) -> SignalGroup {
+        let x = data["_class"].as_str().expect(format!("Missing _class for signal group {}", name).as_str());
         let class = match x {
             "ll" => SignalClass::LowLevel,
             "pk" => SignalClass::Packed,
@@ -37,7 +39,7 @@ impl SignalGroup {
         for (name, signal) in data.as_hash().unwrap() {
             let name = name.as_str().unwrap();
             if name != "_class" {
-                signals.push(Signal::new(name, signal));
+                signals.push(Signal::new(types, name, signal));
             }
         }
         SignalGroup { class, signals }
@@ -53,24 +55,27 @@ pub struct Signal {
     pub name: String,
     pub description: String,
     pub direction: SignalDirection,
-    pub fields: Vec<SignalField>,
+    pub fields: Vec<(String, Box<FieldFormat>)>,
 }
 
 impl Signal {
-    pub fn new(name: &str, data: &Yaml) -> Signal {
+    pub fn new(types: &Types, name: &str, data: &Yaml) -> Signal {
         let name = name.to_owned();
         let description = data["_description"].as_str().unwrap().to_owned();
-        let x = data["_direction"].as_str().unwrap();
+        let x = data["_direction"].as_str().expect(format!("Missing _direction in signal {}", name).as_str());
         let direction = match x {
             "CS" => SignalDirection::ClientToServer,
             "SC" => SignalDirection::ServerToClient,
             "MT" => SignalDirection::Mutual,
-            _ => panic!("Unknown direction " + x),
+            _ => panic!("Unknown direction {}", x),
         };
         let mut fields = Vec::new();
         for (name, format) in data.as_hash().unwrap() {
-            let name = name.as_str().unwrap().to_owned();
-            fields.push(SignalField{name, format: create_field_format(format)})
+            let name = name.as_str().unwrap();
+            let format = create_field_format(&types.map, name, format, format!("signal {}", name).as_str());
+            if let Some(format) = format {
+                fields.push((name.to_owned(), format));
+            }
         }
         Signal { name, description, direction, fields }
     }
@@ -80,9 +85,4 @@ pub enum SignalDirection {
     ClientToServer,
     ServerToClient,
     Mutual,
-}
-
-pub struct SignalField {
-    pub name: String,
-    pub format: Box<FieldFormat>,
 }

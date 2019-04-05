@@ -21,17 +21,19 @@
 extern crate yaml_rust;
 
 use std::collections::HashMap;
+use std::env::var;
 use std::fs::read_to_string;
+use std::path::Path;
+
+use yaml_rust::YamlLoader;
 
 use crate::protocol::fsm::FSM;
 use crate::protocol::signal::SignalGroup;
-
-use std::env::var;
-use std::path::Path;
-use yaml_rust::YamlLoader;
+use crate::protocol::types::Types;
 
 pub struct Spec {
     pub fsm: FSM,
+    pub types: Types,
     pub groups: HashMap<String, SignalGroup>,
 }
 
@@ -45,14 +47,16 @@ impl Spec {
 
         let fsm = FSM::new(&yaml["FSM"]);
 
+        let types = Types::new(&yaml["TYPES"]);
+
         let mut groups = HashMap::new();
         for (name, group) in yaml.as_hash().unwrap() {
             let name = name.as_str().unwrap();
-            if name != "FSM" {
-                groups.insert(name.to_owned(), SignalGroup::new(group));
+            if name != "FSM" && name != "TYPES" {
+                groups.insert(name.to_owned(), SignalGroup::new(&types, name, group));
             }
         }
 
-        Spec { fsm, groups }
+        Spec { fsm, types, groups }
     }
 }

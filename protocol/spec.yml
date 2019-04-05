@@ -23,6 +23,39 @@ FSM:
     WorldSwitch: loading
   disconnected:
     _description: Connection is terminated
+
+TYPES:
+  int_pos:
+    x: int32
+    y: int32
+    z: int32
+  float_pos:
+    x: float32
+    y: float32
+    z: float32
+  cube_pos:
+    batch: int_pos
+    local_x: nibble
+    local_y: nibble
+    local_z: nibble
+    _nop_1: true
+  cube_precise_pos:
+    batch: int_pos
+    local_x: nibble
+    local_y: nibble
+    local_z: nibble
+    face: nibble
+    precise_x: float32
+    precise_y: float32
+  rotation:
+    yaw: float32
+    pitch: float32
+  flex_pos:
+    batch: int_pos
+    local: float_pos
+    yaw: float32
+    pitch: float32
+
 HandShake:
   _class: ll
   LOGIN_REQUEST:
@@ -39,7 +72,7 @@ HandShake:
     majorProtocool: uint32
     minorProtocool: uint32
     username: string
-    userId: byte[20]
+    userId: byte:20
     language: string
     sysInfo: string:json
 LoginChallenge:
@@ -132,6 +165,7 @@ Load:
       _list: const:4096
       id: uvint32
 Spawn:
+  _class: pk
   SPAWN:
     _description: >
       The client should display the world when this signal arrives.
@@ -147,11 +181,11 @@ Spawn:
     pos: flex_pos
     eventTime: uvint64
 GamePlay:
+  _class: pk
   CUBE_UPDATE:
     _description: >
       The client should modify the content of the specified cube as soon as possible
-      _direction
-      : SC
+    _direction: SC
     pos: cube_pos
     type: uvint32
   CUBE_INTERACT:
@@ -186,11 +220,8 @@ GamePlay:
     flexId: uvint32
     from: optional:flex_pos
     velocity: optional:float_pos
-    rotation:
-      _optional: true
-      yaw: float32
-      pitch: float32
-      eventTime: uvint64
+    rotation: optional:rotation
+    eventTime: uvint64
   USER_MOTION:
     _description: >
       The client sends this signal when the user requests to move.

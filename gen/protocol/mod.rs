@@ -28,12 +28,14 @@ use std::path::Path;
 use std::process::exit;
 
 use heck::CamelCase;
+use heck::SnakeCase;
 
-use crate::protocol::spec::Spec;
 use crate::protocol::signal::SignalDirection;
+use crate::protocol::spec::Spec;
 
 mod spec;
 mod fsm;
+mod types;
 mod signal;
 mod format;
 
@@ -42,38 +44,64 @@ pub fn generate() {
 
     let out_dir = var("OUT_DIR").unwrap();
     let dest_path = Path::new(&out_dir).join("protocol.rs");
-    let mut f = File::create(&dest_path).unwrap();
-    f.write_all(b"#[derive(Debug)]\n").unwrap();
-    f.write_all(b"pub enum ConnectionState {\n").unwrap();
-    for (name, _) in spec.fsm.states {
-        f.write_all(b"    ").unwrap();
-        f.write_all(name.to_camel_case().as_bytes()).unwrap();
-        f.write_all(b",\n").unwrap();
-    }
-    f.write_all(b"}\n\n").unwrap();
 
-    f.write_all(b"impl Server {\n").unwrap();
-    for (_, group) in spec.groups {
-        for signal in group.signals {
-            if signal.direction != SignalDirection::ClientToServer {
-                f.write_all(b"    write_").unwrap();
+    {
+        let mut f = File::create(&dest_path).unwrap();
+        f.write_all(b"#[derive(Debug)]\n").unwrap();
+        f.write_all(b"pub enum ConnectionState {\n").unwrap();
+        for (name, _) in &spec.fsm.states {
+            f.write_all(b"    ").unwrap();
+            f.write_all(name.to_camel_case().as_bytes()).unwrap();
+            f.write_all(b",\n").unwrap();
+        }
+        f.write_all(b"}\n\n").unwrap();
+
+        f.write_all(b"impl Server {\n").unwrap();
+        generate_endpoint_impl(&spec, &mut f, true);
+        f.write_all(b"}\n").unwrap();
+
+        f.write_all(b"impl Client {\n").unwrap();
+        generate_endpoint_impl(&spec, &mut f, true);
+        f.write_all(b"}\n").unwrap();
+    }
+}
+
+fn generate_endpoint_impl(spec: &Spec, f: &mut File, server: bool) {
+    for (group_name, group) in &spec.groups {
+        for signal in &group.signals {
+            let (write, read) = match signal.direction {
+                SignalDirection::ClientToServer => (!server, server),
+                SignalDirection::ServerToClient => (server, !server),
+                SignalDirection::Mutual => (true, true),
+            };
+            if write {
+                for line in signal.description.lines() {
+                    f.write_all(b"    /// ").unwrap();
+                    f.write_all(line.as_bytes()).unwrap();
+                    f.write_all(b"\n").unwrap();
+                }
+                f.write_all(b"    fn write_").unwrap();
                 f.write_all(signal.name.to_snake_case().as_bytes()).unwrap();
                 f.write_all(b"(&mut self, signal: ").unwrap();
                 f.write_all(signal.name.to_camel_case().as_bytes()).unwrap();
                 f.write_all(b") {\n").unwrap();
                 f.write_all(b"        let state = self.state;\n").unwrap();
                 f.write_all(b"        self.state = match state {\n").unwrap();
-                for (_, state) in spec.fsm.states {
-                    
-                    f.write_all(b"            \n").unwrap();
+                for (_, from_state) in &spec.fsm.states {
+                    for edge in &from_state.edges {
+                        if edge.group_name == *group_name {
+                            f.write_all(b"            ConnectionState::").unwrap();
+                            f.write_all(from_state.name.to_camel_case().as_bytes()).unwrap();
+                            f.write_all(b" => ConnectionState::").unwrap();
+                            f.write_all(from_state.name.to_camel_case().as_bytes()).unwrap();
+                            f.write_all(b",").unwrap();
+                            f.write_all(b"\n").unwrap();
+                        }
+                    }
                 }
                 f.write_all(b"        };\n").unwrap();
                 f.write_all(b"    }\n").unwrap();
             }
         }
     }
-    f.write_all(b"\n").unwrap();
-    f.write_all(b"}\n").unwrap();
-
-    exit(0);
 }

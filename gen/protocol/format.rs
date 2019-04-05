@@ -1,23 +1,30 @@
+use std::rc::Rc;
+
 use linked_hash_map::LinkedHashMap;
+use syn::export::Debug;
 use yaml_rust::Yaml;
 
 use crate::protocol::types::Type;
-use std::rc::Rc;
-use syn::export::Debug;
 
-pub trait FieldFormat: Debug {}
+pub trait FieldFormat: Debug {
+    fn return_type(&self) -> String;
+}
 
 #[derive(Debug)]
 pub struct NopFieldFormat;
 
-impl FieldFormat for NopFieldFormat {}
+impl FieldFormat for NopFieldFormat {
+    fn return_type(&self) -> String { "()".to_owned() }
+}
 
 #[derive(Debug)]
-pub struct RefFieldFormat {
+pub struct RcFieldFormat {
     target: Rc<FieldFormat>,
 }
 
-impl FieldFormat for RefFieldFormat {}
+impl FieldFormat for RcFieldFormat {
+    fn return_type(&self) -> String { self.target.return_type() }
+}
 
 pub fn create_field_format(types: &LinkedHashMap<String, Type>, field_name: &str, yaml: &Yaml, field_src: &str) -> Option<Box<FieldFormat>> {
     if field_name.starts_with("_nop_") {
@@ -46,26 +53,34 @@ pub struct SimpleFieldFormat {
     typ: String,
 }
 
-impl FieldFormat for SimpleFieldFormat {}
+impl FieldFormat for SimpleFieldFormat {
+    fn return_type(&self) -> String { self.typ.to_owned() }
+}
 
 #[derive(Debug)]
 pub struct ByteArrayFieldFormat {
     length: usize,
 }
 
-impl FieldFormat for ByteArrayFieldFormat {}
+impl FieldFormat for ByteArrayFieldFormat {
+    fn return_type(&self) -> String { format!("[u8; {}]", self.length).to_owned() }
+}
 
 #[derive(Debug)]
 pub struct OptionalFieldFormat {
     inner: Box<FieldFormat>,
 }
 
-impl FieldFormat for OptionalFieldFormat {}
+impl FieldFormat for OptionalFieldFormat {
+    fn return_type(&self) -> String { format!("Option<{}>", self.inner.return_type()).to_owned() }
+}
 
 #[derive(Debug)]
 pub struct JsonFieldFormat {}
 
-impl FieldFormat for JsonFieldFormat {}
+impl FieldFormat for JsonFieldFormat {
+    fn return_type(&self) -> String { "JsonValue".to_owned() }
+}
 
 macro_rules! simple_field_format {
     ($s: expr, $name: expr, $type: expr) => {
@@ -83,7 +98,7 @@ fn create_string_field_format(s: &str, src_msg: &str, types: Option<&LinkedHashM
         if types.contains_key(s) {
             let mut properties: Vec<(String, Box<FieldFormat>)> = Vec::new();
             for (n, f) in &types[s] {
-                properties.push((n.clone(), Box::new(RefFieldFormat{target: Rc::clone(f)})));
+                properties.push((n.clone(), Box::new(RcFieldFormat { target: Rc::clone(f) })));
             }
             return Box::new(StructFieldFormat { properties });
         }
@@ -132,7 +147,9 @@ pub struct ArrayFieldFormat {
     each: Box<FieldFormat>,
 }
 
-impl FieldFormat for ArrayFieldFormat {}
+impl FieldFormat for ArrayFieldFormat {
+    fn return_type(&self) -> String { format!("[{}; {}]", self.each.return_type(), self.size) }
+}
 
 #[derive(Debug)]
 pub struct PrefixFieldFormat {
@@ -140,21 +157,29 @@ pub struct PrefixFieldFormat {
     each: Box<FieldFormat>,
 }
 
-impl FieldFormat for PrefixFieldFormat {}
+impl FieldFormat for PrefixFieldFormat {
+    fn return_type(&self) -> String { format!("Vec<{}>", self.each.return_type()).to_owned() }
+}
 
 #[derive(Debug)]
 pub struct TailFieldFormat {
     each: Box<FieldFormat>,
 }
 
-impl FieldFormat for TailFieldFormat {}
+impl FieldFormat for TailFieldFormat {
+    fn return_type(&self) -> String { format!("Vec<{}>", self.each.return_type()).to_owned() }
+}
 
 #[derive(Debug)]
 pub struct StructFieldFormat {
     properties: Vec<(String, Box<FieldFormat>)>,
 }
 
-impl FieldFormat for StructFieldFormat {}
+impl FieldFormat for StructFieldFormat {
+    fn return_type(&self) -> String {
+        "()".to_owned()
+    }
+}
 
 fn create_hash_field_format(m: &Yaml, src_msg: &str) -> Box<FieldFormat> {
     let list_method = m["_list"].as_str().expect(format!("Missing _list in {}", src_msg).as_str());

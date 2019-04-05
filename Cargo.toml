@@ -15,6 +15,8 @@ build = "gen/main.rs"
 [build-dependencies]
 heck = "0.3"
 syn = "0.15"
+quote = "0.6"
+proc-macro2 = "0.4"
 yaml-rust = "0.4"
 linked-hash-map = "0.5"
 

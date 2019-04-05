@@ -17,6 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+extern crate serde_json;
+
+use std::error::Error;
+use std::fmt::Display;
+use std::fmt::Formatter;
+
+use serde_json::Value as JsonValue;
+
 pub struct Client {
     state: ConnectionState,
 }
@@ -25,12 +33,33 @@ pub struct Server {
     state: ConnectionState,
 }
 
+#[derive(Debug)]
+#[derive(Display)]
+pub struct NetError {
+    description: String,
+}
+
+impl Display for NetError {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        f.write_str(self.description.as_str());
+        Ok
+    }
+}
+
+impl Error for NetError {
+    fn description(&self) -> &str { self.description.as_str() }
+}
+
+type NetRet<T> = Result<T, NetError>;
+
+pub fn make_err<T>(description: String) -> Result<T, NetError> { Err(NetError { description }) }
+
+pub fn make_str_err<T>(description: &str) -> Result<T, NetError> { make_err(description.to_owned()) }
+
+
+
 include!(concat!(env!("OUT_DIR"), "/protocol.rs"));
 
 pub mod ll;
 pub mod pk;
 pub mod handler;
-
-fn test() {
-    dbg!(ConnectionState::Spawned);
-}

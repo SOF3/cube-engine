@@ -29,7 +29,7 @@ use yaml_rust::YamlLoader;
 
 use crate::protocol::fsm::FSM;
 use crate::protocol::signal::SignalGroup;
-use crate::protocol::types::Types;
+use crate::protocol::types::{Types, new_types};
 
 pub struct Spec {
     pub fsm: FSM,
@@ -47,7 +47,7 @@ impl Spec {
 
         let fsm = FSM::new(&yaml["FSM"]);
 
-        let types = Types::new(&yaml["TYPES"]);
+        let types = new_types(&yaml["TYPES"]);
 
         let mut groups = HashMap::new();
         for (name, group) in yaml.as_hash().unwrap() {

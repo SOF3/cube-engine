@@ -17,10 +17,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use heck::{CamelCase, ShoutySnakeCase};
 use yaml_rust::Yaml;
 
-use crate::protocol::format::{create_field_format, FieldFormat};
-use crate::protocol::types::Types;
+use crate::protocol::types::{new_type, Type, Types};
+use crate::protocol::SignalId;
 
 pub struct SignalGroup {
     pub class: SignalClass,
@@ -55,7 +56,7 @@ pub struct Signal {
     pub name: String,
     pub description: String,
     pub direction: SignalDirection,
-    pub fields: Vec<(String, Box<FieldFormat>)>,
+    pub fields: Type,
 }
 
 impl Signal {
@@ -69,15 +70,24 @@ impl Signal {
             "MT" => SignalDirection::Mutual,
             _ => panic!("Unknown direction {}", x),
         };
-        let mut fields = Vec::new();
-        for (name, format) in data.as_hash().unwrap() {
-            let name = name.as_str().unwrap();
-            let format = create_field_format(&types.map, name, format, format!("signal {}", name).as_str());
-            if let Some(format) = format {
-                fields.push((name.to_owned(), format));
-            }
-        }
+        let fields = new_type(&types, name.as_str(), data);
         Signal { name, description, direction, fields }
+    }
+
+    pub fn signal_id(&self) -> SignalId {
+        let mut ret = 0;
+        for ch in self.name.bytes() {
+            ret += (ch as SignalId) * 31 + 7;
+        }
+        ret
+    }
+
+    pub fn signal_id_name(&self) -> String {
+        format!("SIGNAL_{}", self.name.to_shouty_snake_case())
+    }
+
+    pub fn signal_type(&self) -> String {
+        format!("{}Signal", self.name.to_camel_case())
     }
 }
 

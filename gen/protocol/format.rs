@@ -1,20 +1,33 @@
 use std::rc::Rc;
 
 use linked_hash_map::LinkedHashMap;
+use proc_macro2::TokenStream;
+use quote::quote;
 use syn::export::Debug;
 use yaml_rust::Yaml;
 
+use crate::protocol::ident;
 use crate::protocol::types::Type;
 
 pub trait FieldFormat: Debug {
-    fn return_type(&self) -> String;
+    fn return_type(&self) -> TokenStream;
+    fn write_code(&self) -> TokenStream;
+    fn read_code(&self) -> TokenStream;
 }
 
 #[derive(Debug)]
 pub struct NopFieldFormat;
 
 impl FieldFormat for NopFieldFormat {
-    fn return_type(&self) -> String { "()".to_owned() }
+    fn return_type(&self) -> TokenStream { quote! { () } }
+
+    fn write_code(&self) -> TokenStream {
+        quote! { self.write.write_nop()?; }
+    }
+
+    fn read_code(&self) -> TokenStream {
+        quote! { self.read.read_nop()?; }
+    }
 }
 
 #[derive(Debug)]
@@ -23,7 +36,11 @@ pub struct RcFieldFormat {
 }
 
 impl FieldFormat for RcFieldFormat {
-    fn return_type(&self) -> String { self.target.return_type() }
+    fn return_type(&self) -> TokenStream { self.target.return_type() }
+
+    fn write_code(&self) -> TokenStream { self.target.write_code() }
+
+    fn read_code(&self) -> TokenStream { self.target.read_code() }
 }
 
 pub fn create_field_format(types: &LinkedHashMap<String, Type>, field_name: &str, yaml: &Yaml, field_src: &str) -> Option<Box<FieldFormat>> {
@@ -54,7 +71,20 @@ pub struct SimpleFieldFormat {
 }
 
 impl FieldFormat for SimpleFieldFormat {
-    fn return_type(&self) -> String { self.typ.to_owned() }
+    fn return_type(&self) -> TokenStream {
+        let typ = ident(&self.typ);
+        quote! { #typ }
+    }
+
+    fn write_code(&self) -> TokenStream {
+        let name = ident(&format!("write_{}", self.name));
+        quote! { self.#name(*target)?; }
+    }
+
+    fn read_code(&self) -> TokenStream {
+        let name = ident(&format!("read_{}", self.name));
+        quote! { *target = self.#name()?; }
+    }
 }
 
 #[derive(Debug)]
@@ -63,7 +93,18 @@ pub struct ByteArrayFieldFormat {
 }
 
 impl FieldFormat for ByteArrayFieldFormat {
-    fn return_type(&self) -> String { format!("[u8; {}]", self.length).to_owned() }
+    fn return_type(&self) -> TokenStream {
+        let len = self.length;
+        quote! { [u8; #len] }
+    }
+
+    fn write_code(&self) -> TokenStream {
+        quote! { self.write_bytes(target)?; }
+    }
+
+    fn read_code(&self) -> TokenStream {
+        quote! { self.read_bytes(target)?; }
+    }
 }
 
 #[derive(Debug)]
@@ -72,14 +113,48 @@ pub struct OptionalFieldFormat {
 }
 
 impl FieldFormat for OptionalFieldFormat {
-    fn return_type(&self) -> String { format!("Option<{}>", self.inner.return_type()).to_owned() }
+    fn return_type(&self) -> TokenStream {
+        let inner = self.inner.return_type();
+        quote! { Option<#inner> }
+    }
+
+    fn write_code(&self) -> TokenStream {
+        let inner = self.inner.write_code();
+        quote! {
+            match target {
+                Some(target) => {
+                    self.write_bit(true)?;
+                    self.write_nop()?;
+                    #inner
+                },
+                None => {
+                    self.write_bit(false)?;
+                    self.write_nop()?;
+                }
+            }
+        }
+    }
+
+    fn read_code(&self) -> TokenStream {
+        let inner = self.inner.read_code();
+        quote! {
+            let has = self.read_bit()?;
+            self.read_nop()?;
+            if has {
+                let
+                *target = Some(value);
+            } else {
+                *target = None;
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
 pub struct JsonFieldFormat {}
 
 impl FieldFormat for JsonFieldFormat {
-    fn return_type(&self) -> String { "JsonValue".to_owned() }
+    fn return_type(&self) -> TokenStream { quote! { JsonValue } }
 }
 
 macro_rules! simple_field_format {
@@ -132,7 +207,7 @@ fn create_string_field_format(s: &str, src_msg: &str, types: Option<&LinkedHashM
     simple_field_format!(s, "vint64", "i64");
     simple_field_format!(s, "uvint32", "u32");
     simple_field_format!(s, "uvint64", "u64");
-    simple_field_format!(s, "string", "String");
+    simple_field_format!(s, "string", "String"); // TODO fix references
     simple_field_format!(s, "float32", "f32");
     simple_field_format!(s, "float64", "f64");
 
@@ -148,7 +223,11 @@ pub struct ArrayFieldFormat {
 }
 
 impl FieldFormat for ArrayFieldFormat {
-    fn return_type(&self) -> String { format!("[{}; {}]", self.each.return_type(), self.size) }
+    fn return_type(&self) -> TokenStream {
+        let each = self.each.return_type();
+        let size = self.size;
+        quote! {[#each; #size]}
+    }
 }
 
 #[derive(Debug)]
@@ -158,7 +237,10 @@ pub struct PrefixFieldFormat {
 }
 
 impl FieldFormat for PrefixFieldFormat {
-    fn return_type(&self) -> String { format!("Vec<{}>", self.each.return_type()).to_owned() }
+    fn return_type(&self) -> TokenStream {
+        let each = self.each.return_type();
+        quote! { Vec<#each> }
+    }
 }
 
 #[derive(Debug)]
@@ -167,7 +249,10 @@ pub struct TailFieldFormat {
 }
 
 impl FieldFormat for TailFieldFormat {
-    fn return_type(&self) -> String { format!("Vec<{}>", self.each.return_type()).to_owned() }
+    fn return_type(&self) -> TokenStream {
+        let each = self.each.return_type();
+        quote! { Vec<#each> }
+    }
 }
 
 #[derive(Debug)]
@@ -176,8 +261,8 @@ pub struct StructFieldFormat {
 }
 
 impl FieldFormat for StructFieldFormat {
-    fn return_type(&self) -> String {
-        "()".to_owned()
+    fn return_type(&self) -> TokenStream {
+        quote! { () } // TODO
     }
 }
 

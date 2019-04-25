@@ -17,34 +17,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::rc::Rc;
+
 use linked_hash_map::LinkedHashMap;
 use yaml_rust::Yaml;
 
 use crate::protocol::format::{create_field_format, FieldFormat};
-use std::rc::Rc;
 
 pub type Type = Vec<(String, Rc<FieldFormat>)>;
 
-pub struct Types {
-    pub map: LinkedHashMap<String, Type>
+pub fn new_type(types: &LinkedHashMap<String, Type>, name: &str, content: &Yaml) -> Type {
+    let mut ret = Type::new();
+    for (field, format) in content.as_hash().unwrap() {
+        let field = field.as_str().unwrap();
+        let format = create_field_format(types, field, format, format!("type {}", name).as_str());
+        if let Some(format) = format {
+            ret.push((field.to_owned(), format.into()));
+        }
+    }
+    ret
 }
 
-impl Types {
-    pub fn new(data: &Yaml) -> Types {
-        let mut map = LinkedHashMap::<String, Type>::new();
-        for (name, content) in data.as_hash().unwrap() {
-            let name = name.as_str().unwrap().to_owned();
-            let mut typ = Type::new();
-            for (field, format) in content.as_hash().unwrap() {
-                let field = field.as_str().unwrap();
-                let format = create_field_format(&map, field, format, format!("type {}", name).as_str());
-                if let Some(format) = format {
-                    let format: Rc<FieldFormat> = format.into();
-                    typ.push((field.to_owned(), format));
-                }
-            }
-            map.insert(name, typ);
-        }
-        Types { map }
+pub type Types = LinkedHashMap<String, Type>;
+
+pub fn new_types(data: &Yaml) -> Types {
+    let mut map = Types::new();
+    for (name, content) in data.as_hash().unwrap() {
+        let name = name.as_str().unwrap();
+        map.insert(name.to_owned(), new_type(&map, name, content));
     }
+    map
 }

@@ -7,7 +7,7 @@ FSM:
     _description: Server is verifying login
     LoginChallenge: login_requested
     LoginAccept: loading
-    Disconnect: disconnect
+    Disconnect: disconnected
   loading:
     _description: Client is receiving data and preparing to spawn
     Load: loading
@@ -69,8 +69,8 @@ HandShake:
       sysInfo is a JSON object containing the following keys:
       nothing yet)
     _direction: CS
-    majorProtocool: uint32
-    minorProtocool: uint32
+    majorProtocol: uint32
+    minorProtocol: uint32
     username: string
     userId: byte:20
     language: string
@@ -187,7 +187,7 @@ GamePlay:
       The client should modify the content of the specified cube as soon as possible
     _direction: SC
     pos: cube_pos
-    type: uvint32
+    updateType: uvint32
   CUBE_INTERACT:
     _description: >
       If the client is using an action button and the actively clicked position is changed

@@ -19,35 +19,29 @@
 
 extern crate serde_json;
 
-use std::error::Error;
-use std::fmt::Display;
-use std::fmt::Formatter;
+use std::io::{Read, Write};
 
 use serde_json::Value as JsonValue;
 
-pub struct Client {
+pub struct Client<W: Write, R: Read> {
     state: ConnectionState,
+    write: W,
+    read: R,
 }
 
-pub struct Server {
+pub struct Server<W: Write, R: Read> {
     state: ConnectionState,
+    write: W,
+    read: R,
 }
 
 #[derive(Debug)]
-#[derive(Display)]
 pub struct NetError {
-    description: String,
+    pub description: String,
 }
 
-impl Display for NetError {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        f.write_str(self.description.as_str());
-        Ok
-    }
-}
-
-impl Error for NetError {
-    fn description(&self) -> &str { self.description.as_str() }
+impl NetError {
+    pub fn new(description: String) -> NetError { NetError { description } }
 }
 
 type NetRet<T> = Result<T, NetError>;
@@ -55,8 +49,6 @@ type NetRet<T> = Result<T, NetError>;
 pub fn make_err<T>(description: String) -> Result<T, NetError> { Err(NetError { description }) }
 
 pub fn make_str_err<T>(description: &str) -> Result<T, NetError> { make_err(description.to_owned()) }
-
-
 
 include!(concat!(env!("OUT_DIR"), "/protocol.rs"));
 

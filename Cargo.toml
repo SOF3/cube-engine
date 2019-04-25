@@ -19,6 +19,7 @@ quote = "0.6"
 proc-macro2 = "0.4"
 yaml-rust = "0.4"
 linked-hash-map = "0.5"
+rustfmt = "0.10"
 
 [dev-dependencies]
 websocket = "0.22"

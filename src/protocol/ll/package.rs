@@ -58,7 +58,7 @@ impl PackageWriter {
         let new_cube = CubeWriter::new(encoder);
         self.cube.replace(new_cube);
 
-        Ok(())
+        Result::Ok(())
     }
 }
 
@@ -73,5 +73,5 @@ pub fn handle_package<H: SignalHandler, R: Read>(handler: &mut H, reader: &mut C
         handle_pk(handler, &mut cube)?;
     }
     cube.read_nop()?;
-    Ok(())
+    Result::Ok(())
 }

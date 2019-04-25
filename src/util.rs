@@ -27,9 +27,9 @@ pub fn make_io_error(desc: &str) -> Error {
 }
 
 pub fn io_error<T>(desc: &str) -> Result<T, Error> {
-    Err(make_io_error(desc))
+    Result::Err(make_io_error(desc))
 }
 
 pub fn io_error_f<T>(desc: String) -> Result<T, Error> {
-    Err(make_io_error(desc.as_str()))
+    Result::Err(make_io_error(desc.as_str()))
 }

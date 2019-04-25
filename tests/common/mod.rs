@@ -38,7 +38,7 @@ impl Display for Test {
             write!(f, "  {},", step)?;
         }
         write!(f, "}}")?;
-        Ok(())
+        Result::Ok(())
     }
 }
 

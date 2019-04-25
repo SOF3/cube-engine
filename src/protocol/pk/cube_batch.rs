@@ -38,7 +38,7 @@ impl CubeBatchSignal {
         for i in 0..4096 {
             writer.write_uint32(self.payload[i])?;
         }
-        Ok(())
+        Result::Ok(())
     }
 
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<CubeBatchSignal> {
@@ -49,6 +49,6 @@ impl CubeBatchSignal {
         for i in 0..4096 {
             pk.payload[i] = reader.read_uint32()?;
         }
-        Ok(pk)
+        Result::Ok(pk)
     }
 }

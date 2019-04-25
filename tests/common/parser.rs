@@ -34,7 +34,7 @@ use self::byteorder::{BigEndian, WriteBytesExt};
 pub fn parse_step(tokens: &Vec<StepToken>) -> IoResult<Vec<u8>> {
     let mut buffer = Vec::<u8>::new();
     if parse_until_end(tokens, 0.borrow_mut(), &mut buffer)? { io_error("Unexpected close brace")? }
-    Ok(buffer)
+    Result::Ok(buffer)
 }
 
 fn parse_until_end<W: Write>(tokens: &Vec<StepToken>, i: &mut usize, buffer: &mut W) -> IoResult<bool> {
@@ -50,9 +50,9 @@ fn parse_until_end<W: Write>(tokens: &Vec<StepToken>, i: &mut usize, buffer: &mu
             StepToken::Utf8String(str) => buffer.write_all(str.as_bytes())?,
             StepToken::Float(f) => buffer.write_f32::<BigEndian>(f.clone())?,
             StepToken::Double(f) => buffer.write_f64::<BigEndian>(f.clone())?,
-            StepToken::Close => { return Ok(true); }
+            StepToken::Close => { return Result::Ok(true); }
         }
         *i += 1;
     }
-    Ok(false)
+    Result::Ok(false)
 }

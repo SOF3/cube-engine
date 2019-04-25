@@ -54,7 +54,7 @@ impl<W> CubeWriter<W> where W: Write {
             return ret;
         }
 
-        Ok(())
+        Result::Ok(())
     }
 
     /// Panics if the current byte is incomplete
@@ -77,7 +77,7 @@ impl<W> CubeWriter<W> where W: Write {
             return ret;
         }
 
-        Ok(())
+        Result::Ok(())
     }
     /// Writes a nibble to the target.
     /// Only permitted when the bit pointer is at offset `0` or `4`.
@@ -86,7 +86,7 @@ impl<W> CubeWriter<W> where W: Write {
         for i in 0..=3 {
             self.write_bit(((value >> (3 - i)) & 1) != 0)?;
         }
-        Ok(())
+        Result::Ok(())
     }
 
     /// Writes 
@@ -174,14 +174,14 @@ impl<W> CubeWriter<W> where W: Write {
         self.write_int32(value.x)?;
         self.write_int32(value.y)?;
         self.write_int32(value.z)?;
-        Ok(())
+        Result::Ok(())
     }
     /// Writes a FloatPos to the target
     pub fn write_float_pos(&mut self, value: &FloatPos) -> VioResult {
         self.write_float32(value.x)?;
         self.write_float32(value.y)?;
         self.write_float32(value.z)?;
-        Ok(())
+        Result::Ok(())
     }
 
     /// Writes a [CubePos](CubePos) to the target
@@ -191,7 +191,7 @@ impl<W> CubeWriter<W> where W: Write {
         self.write_nibble(value.local_y)?;
         self.write_nibble(value.local_z)?;
         self.write_nop()?;
-        Ok(())
+        Result::Ok(())
     }
     /// Writes a [CubePrecisePos](CubePrecisePos) to the target
     pub fn write_cube_precise_pos(&mut self, value: &CubePrecisePos) -> VioResult {
@@ -202,7 +202,7 @@ impl<W> CubeWriter<W> where W: Write {
         self.write_nibble(value.face)?;
         self.write_float32(value.precise_x)?;
         self.write_float32(value.precise_y)?;
-        Ok(())
+        Result::Ok(())
     }
 
     /// Writes a [FlexPos](FlexPos) to the target
@@ -211,6 +211,6 @@ impl<W> CubeWriter<W> where W: Write {
         self.write_float_pos(&value.local)?;
         self.write_float32(value.yaw)?;
         self.write_float32(value.pitch)?;
-        Ok(())
+        Result::Ok(())
     }
 }

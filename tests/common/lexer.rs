@@ -88,7 +88,7 @@ pub fn lex_step_line(line: &str, buffer: &mut Vec<StepToken>) -> VioResult {
             }
         };
     }
-    Ok(())
+    Result::Ok(())
 }
 
 fn scan_utf8(chars: &mut Chars, buffer: &mut Vec<StepToken>) -> VioResult {
@@ -101,7 +101,7 @@ fn scan_utf8(chars: &mut Chars, buffer: &mut Vec<StepToken>) -> VioResult {
             },
             Some(c) if c == '}' => {
                 buffer.push(StepToken::Utf8String(vec.iter().collect()));
-                return Ok(());
+                return Result::Ok(());
             }
             Some(c) => vec.push(c),
             None => io_error("Unexpected end of line while parsing UTF-8 literal")?,
@@ -124,5 +124,5 @@ fn scan_float<F: FromStr>(chars: &mut Chars) -> IoResult<F> {
         Ok(n) => n,
         Err(_) => io_error::<F>("Error parsing float")?,
     };
-    Ok(number)
+    Result::Ok(number)
 }

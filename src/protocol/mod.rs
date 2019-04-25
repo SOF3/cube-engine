@@ -17,41 +17,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-extern crate serde_json;
-
-use std::io::{Read, Write};
-
-use serde_json::Value as JsonValue;
-
-pub struct Client<W: Write, R: Read> {
-    state: ConnectionState,
-    write: W,
-    read: R,
-}
-
-pub struct Server<W: Write, R: Read> {
-    state: ConnectionState,
-    write: W,
-    read: R,
-}
-
-#[derive(Debug)]
-pub struct NetError {
-    pub description: String,
-}
-
-impl NetError {
-    pub fn new(description: String) -> NetError { NetError { description } }
-}
-
-type NetRet<T> = Result<T, NetError>;
-
-pub fn make_err<T>(description: String) -> Result<T, NetError> { Err(NetError { description }) }
-
-pub fn make_str_err<T>(description: &str) -> Result<T, NetError> { make_err(description.to_owned()) }
-
-include!(concat!(env!("OUT_DIR"), "/protocol.rs"));
-
 pub mod ll;
 pub mod pk;
 pub mod handler;

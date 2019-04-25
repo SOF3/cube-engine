@@ -42,7 +42,7 @@ pub enum StepToken {
 
 impl Step<StepToken> {
     fn into_u8(self) -> IoResult<Step<u8>> {
-        Ok(Step {
+        Result::Ok(Step {
             from_server: self.from_server,
             buffer: parse_step(&self.buffer)?,
         })
@@ -70,7 +70,7 @@ pub fn read_tests() -> IoResult<HashMap<String, Test>> {
             ret.insert(test.name.to_owned().replace("-", " "), test);
         }
     }
-    Ok(ret)
+    Result::Ok(ret)
 }
 
 fn read_test_file(file: PathBuf) -> IoResult<Test> {
@@ -119,6 +119,6 @@ fn read_test_file(file: PathBuf) -> IoResult<Test> {
         Some(step) => test.steps.push(step.into_u8()?),
         None => (),
     }
-    Ok(test)
+    Result::Ok(test)
 }
 

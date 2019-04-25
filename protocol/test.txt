@@ -1,0 +1,19 @@
+; Legend: > means Client->Server, < means Server->Client
+; , is used to separate different fields for readability
+; Z{...} is a zlib-deflated section
+; #{...} is a UTF-8-encoded buffer
+; F{...} is an IEEE-754-encoded single-precision float
+; D{...} is an IEEE-754-encoded double-precision float
+
+.test login rejected
+> 21, 00 00 00 01, 00 00 00 01, 00 05 #{Steve},
+  12 34 56 78 ab cd ef ab cd ef 12 34 56 78 ab cd ef ab cd ef,
+  05 #{en_US} 02 #{\{\}}
+< 61, 00 0b #{LoginReject}, 00
+
+.test login accepted, kicked before spawn
+> 21, 00 00 00 01, 00 00 00 01, 00 05 #{Steve},
+  12 34 56 78 ab cd ef ab cd ef 12 34 56 78 ab cd ef ab cd ef,
+  05 #{en_US} 02 #{\{\}}
+< 41, 00 00 00 01
+< 61, 00 0a #{LateReject}, 00

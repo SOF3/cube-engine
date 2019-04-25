@@ -43,10 +43,10 @@ impl LoginRequest {
         writer.write_bytes(&self.user_id)?;
         writer.write_string(self.language.as_str())?;
         writer.write_string(self.sys_info.as_str())?;
-        Ok(())
+        Result::Ok(())
     }
     pub fn read<R: Read>(reader: &mut CubeReader<R>) -> IoResult<Self> {
-        Ok(Self {
+        Result::Ok(Self {
             major_protocol: reader.read_uint32()?,
             minor_protocol: reader.read_uint32()?,
             username: reader.read_string()?,

@@ -1,0 +1,47 @@
+syntax = "proto2";
+
+package cubeengine;
+
+message BatchPos {
+    required sint32 x = 1;
+    required sint32 y = 2;
+    required sint32 z = 3;
+}
+
+message CubePos {
+    required BatchPos batch = 1;
+    required uint32 local_x = 2;
+    required uint32 local_y = 3;
+    required uint32 local_z = 4;
+}
+message CubePrecisePos {
+    required CubePos cube = 1;
+    required uint32 face = 2;
+    required float precise_x = 3;
+    required float precise_y = 4;
+}
+message FlexPos {
+    required BatchPos batch = 1;
+    required float local_x = 2;
+    required float local_y = 3;
+    required float local_z = 4;
+    optional Rotation rotation = 5;
+}
+
+message Vector3d {
+    required double x = 1;
+    required double y = 2;
+    required double z = 3;
+}
+
+// encoded in radians
+message Rotation {
+    required float yaw = 1;
+    required float pitch = 2;
+}
+
+message CubeDef {
+    required uint32 id = 1;
+    required string name = 2;
+    required string model_url = 3;
+}

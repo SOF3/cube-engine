@@ -1,0 +1,109 @@
+syntax = "proto2";
+
+package cubeengine;
+
+import public "types.proto";
+
+message LoginRequest {
+    required int32 major_protocol = 1;
+    required int32 minor_protocol = 2;
+    required string username = 3;
+    required bytes user_id = 4;
+    optional string language = 5 [default = "en_US"];
+}
+message LoginChallengeQuestion {
+    enum ChallengeMethod {
+        OPEN_WINDOW = 0;
+        ASK_INPUT = 1;
+    }
+    required ChallengeMethod method = 1;
+    optional string url = 2;
+    optional string question = 3;
+    optional bool is_password = 4;
+}
+message LoginChallengeAnswer {
+    required string payload = 1;
+}
+
+message LoginAccept {
+    required int32 minor_protocol = 1;
+}
+
+message Disconnect {
+    optional string reason = 1;
+    optional bool rejoin = 2 [default = false];
+}
+
+message Ping {
+    required int64 id = 1;
+}
+message Pong {
+    required int64 id = 1;
+}
+
+message CubeTypeDef {
+    repeated CubeDef cubes = 1;
+}
+
+message CubeBatch {
+    required BatchPos batch = 1;
+    required bytes payload = 2;
+}
+
+message Spawn {
+    required FlexPos pos = 1;
+    required uint64 event_time = 15;
+}
+
+message CubeUpdate {
+    required CubePos pos = 1;
+    required uint32 type = 2;
+}
+
+message CubeInteract {
+    required CubePrecisePos pos = 1;
+    required uint64 event_time = 15;
+}
+
+message ClientActionMask {
+    optional bool screen_touch = 1 [default = false];
+    optional bool mouse_left = 2 [default = false];
+    optional bool mouse_left_double = 22 [default = false];
+    optional bool mouse_right = 3 [default = false];
+    optional bool mouse_right_double = 23 [default = false];
+    optional bool keyboard_1 = 31 [default = false];
+    optional bool keyboard_2 = 32 [default = false];
+    optional bool keyboard_3 = 33 [default = false];
+    optional bool keyboard_4 = 34 [default = false];
+    optional bool keyboard_5 = 35 [default = false];
+    optional bool keyboard_shift = 4 [default = false];
+    optional bool keyboard_space = 5 [default = false];
+    optional bool keyboard_tab = 6 [default = false];
+    required uint64 event_time = 15;
+}
+
+message FlexMotion {
+    required uint64 flex_id = 1;
+    optional FlexPos from = 2;
+    optional Vector3d velocity = 3;
+    optional Rotation rotation = 4;
+    required uint64 event_time = 15;
+}
+
+message UserMotion {
+    required float yaw = 1;
+    optional float pitch = 2;
+    optional bool dash = 3 [default = false];
+    required uint64 event_time = 15;
+}
+
+message UserRotation {
+    required Rotation rotation = 1;
+    required uint64 event_time = 15;
+}
+
+message FlexFlags {
+    optional bool crouch = 1 [default = false];
+    optional bool fire = 2 [default = false];
+    required uint64 event_time = 15;
+}

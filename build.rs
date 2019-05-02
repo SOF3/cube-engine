@@ -17,28 +17,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-pub struct IntPos {
-    pub x: i32,
-    pub y: i32,
-    pub z: i32,
-}
+extern crate protobuf_codegen_pure;
 
-pub struct FloatPos {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-}
+use protobuf_codegen_pure::{Args, Customize};
 
-pub struct CubePos {
-    pub batch: IntPos,
-    pub local_x: u8,
-    pub local_y: u8,
-    pub local_z: u8,
-}
-
-pub struct CubePrecisePos {
-    pub cube: CubePos,
-    pub face: u8,
-    pub precise_x: f32,
-    pub precise_y: f32,
+fn main() {
+    protobuf_codegen_pure::run(Args {
+        out_dir: "src/protocol",
+        input: &["proto/buf.proto"],
+        includes: &["proto"],
+        customize: Customize::default(),
+    }).unwrap();
 }

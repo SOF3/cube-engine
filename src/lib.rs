@@ -19,7 +19,6 @@
 
 #![allow(dead_code)]
 
-pub mod io;
 pub mod protocol;
 pub mod util;
 

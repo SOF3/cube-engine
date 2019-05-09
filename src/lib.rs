@@ -19,9 +19,7 @@
 
 #![allow(dead_code)]
 
+pub mod client;
+pub mod cube;
 pub mod protocol;
 pub mod util;
-
-pub mod cube;
-
-pub mod client;

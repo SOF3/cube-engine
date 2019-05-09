@@ -17,15 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-extern crate protobuf_codegen_pure;
+extern crate prost_build;
 
-use protobuf_codegen_pure::{Args, Customize};
+use prost_build::compile_protos;
 
-fn main() {
-    protobuf_codegen_pure::run(Args {
-        out_dir: "src/protocol",
-        input: &["proto/buf.proto"],
-        includes: &["proto"],
-        customize: Customize::default(),
-    }).unwrap();
+fn main(){
+    compile_protos(&["proto/buf.proto"], &["proto"]).unwrap();
 }
